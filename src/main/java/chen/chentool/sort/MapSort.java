@@ -8,7 +8,7 @@ import java.util.*;
 
 /**
  * @description: map排序
- * 记一种map歪门邪道的排序方式
+ * 记一种map的排序方式
  * @author: sen
  */
 @Component
