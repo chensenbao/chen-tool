@@ -4,7 +4,6 @@ import chen.chentool.trainTicket.dao.StationDao;
 import chen.chentool.trainTicket.entity.StationEntity;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +15,11 @@ import java.util.List;
  */
 @Service
 public class StationService {
-    @Autowired
-    private StationDao stationDao;
+    private final StationDao stationDao;
+
+    public StationService(StationDao stationDao) {
+        this.stationDao = stationDao;
+    }
 
     /**
      * 获取站点信息
@@ -34,10 +36,9 @@ public class StationService {
         }
         response=StrUtil.replace(response,"var station_names ='","");
         response=StrUtil.replace(response,"';","");
-//        @bjb|北京北|VAP|beijingbei|bjb|0|0357|北京|||@bjd|北京东|BOP|beijingdong|bjd|1|0357|北京|||
         List<String> list = StrUtil.split(response, "@", -1, true, true);
         stationDao.delete();
-        list.stream().forEach(item->{
+        list.forEach(item->{
             List<String> stationInfo = StrUtil.split(item, '|');
             if (stationInfo.size()!=11){
                 return;
