@@ -6,20 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
-
 /**
  * @description: 车站地理信息
  * @author: sen
  */
 @SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SiteInfoTest {
+public class StationTest {
     @Autowired
-    private SiteInfo siteInfo;
+    private StationService stationService;
 
     @Test
     public void getSiteInfo() {
-        siteInfo.getSiteInfo("");
+        stationService.getSiteInfo("");
     }
 }
