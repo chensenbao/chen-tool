@@ -1,5 +1,6 @@
 package chen.chentool.trainTicket;
 
+import chen.chentool.trainTicket.entity.TicketDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,5 +20,15 @@ public class StationTest {
     @Test
     public void getSiteInfo() {
         stationService.getSiteInfo("");
+    }
+    @Test
+    public void ticketList(){
+        TicketDTO ticketDTO = new TicketDTO();
+        ticketDTO.setTrainDate("2024-06-07");
+        ticketDTO.setTrainStartTime("13:00");
+        ticketDTO.setFromStationName("福州");
+        ticketDTO.setToStationName("诏安");
+        ticketDTO.setPurposeCodes("ADULT");
+        stationService.ticketList(ticketDTO);
     }
 }

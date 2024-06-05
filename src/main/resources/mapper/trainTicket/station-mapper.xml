@@ -10,4 +10,12 @@
     <delete id="delete">
         DELETE FROM station
     </delete>
+    <select id="getStationCode" resultType="java.lang.String">
+        SELECT s.stationCode
+        FROM station s
+        WHERE s.stationName=#{stationName}
+            OR s.stationPinyin = #{stationName}
+            OR s.stationPinyinSimple = #{stationName}
+        LIMIT 1
+    </select>
 </mapper>

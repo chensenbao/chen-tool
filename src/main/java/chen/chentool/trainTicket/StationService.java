@@ -2,12 +2,17 @@ package chen.chentool.trainTicket;
 
 import chen.chentool.trainTicket.dao.StationDao;
 import chen.chentool.trainTicket.entity.StationEntity;
+import chen.chentool.trainTicket.entity.TicketDTO;
+import chen.chentool.trainTicket.entity.TicketReponse;
+import chen.chentool.util.GsonUtil;
+import chen.chentool.util.HttpsUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description: 火车站站点信息
@@ -25,22 +30,22 @@ public class StationService {
      * 获取站点信息
      */
     @Transactional
-    public void getSiteInfo(String url){
+    public void getSiteInfo(String url) {
         if (StrUtil.isBlank(url)) {
-            url="https://kyfw.12306.cn/otn/resources/js/framework/station_name.js";
+            url = "https://kyfw.12306.cn/otn/resources/js/framework/station_name.js";
         }
         String response = HttpUtil.get(url);
-        if (response==null){
+        if (response == null) {
 //             出错
             return;
         }
-        response=StrUtil.replace(response,"var station_names ='","");
-        response=StrUtil.replace(response,"';","");
+        response = StrUtil.replace(response, "var station_names ='", "");
+        response = StrUtil.replace(response, "';", "");
         List<String> list = StrUtil.split(response, "@", -1, true, true);
         stationDao.delete();
-        list.forEach(item->{
+        list.forEach(item -> {
             List<String> stationInfo = StrUtil.split(item, '|');
-            if (stationInfo.size()!=11){
+            if (stationInfo.size() != 11) {
                 return;
             }
             StationEntity stationEntity = new StationEntity();
@@ -53,6 +58,41 @@ public class StationService {
             stationDao.insert(stationEntity);
         });
 //        System.out.println("操作成功");
+    }
+
+    /**
+     * 余票查询
+     * @param ticketDTO 查询条件
+     */
+    public void ticketList(TicketDTO ticketDTO) {
+        String fromStationName = ticketDTO.getFromStationName();
+        String toStationName = ticketDTO.getToStationName();
+        String fromStationCode = stationDao.getStationCode(fromStationName);
+        String toStationCode = stationDao.getStationCode(toStationName);
+        ticketDTO.setPurposeCodes("ADULT");
+        ticketDTO.setToStationCode(toStationCode);
+        ticketDTO.setFromStationCode(fromStationCode);
+        String url = this.getTicketUrl(ticketDTO);
+        String response = HttpsUtil.httpGet(url);
+        if (response == null) {
+            return;
+        }
+        TicketReponse ticketReponse = GsonUtil.fromJson(response, TicketReponse.class);
+        TicketReponse.Data data = ticketReponse.getData();
+        //车站字典
+        Map<String, Object> map = data.getMap();
+        //车次信息
+        List<String> result = data.getResult();
+
+
+
+        System.out.println(response);
+    }
+
+    private String getTicketUrl(TicketDTO ticketDTO) {
+        String url = "https://kyfw.12306.cn/otn/leftTicket/query?";
+        url += "leftTicketDTO.train_date=" + ticketDTO.getTrainDate() + "&leftTicketDTO.from_station=" + ticketDTO.getFromStationCode() + "&leftTicketDTO.to_station=" + ticketDTO.getToStationCode() + "&purpose_codes=" + ticketDTO.getPurposeCodes();
+        return url;
     }
 
 }
