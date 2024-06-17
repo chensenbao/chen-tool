@@ -7,15 +7,15 @@ import chen.chentool.trainTicket.entity.TicketReponse;
 import chen.chentool.trainTicket.entity.TrainBO;
 import chen.chentool.util.GsonUtil;
 import chen.chentool.util.HttpsUtil;
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +26,11 @@ import java.util.Map;
 @Service
 public class StationService {
     private final StationDao stationDao;
+    private final Logger logger;
 
     public StationService(StationDao stationDao) {
         this.stationDao = stationDao;
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     /**
@@ -41,7 +43,7 @@ public class StationService {
         }
         String response = HttpUtil.get(url);
         if (response == null) {
-//             出错
+            logger.warn("获取站点信息出错");
             return;
         }
         response = StrUtil.replace(response, "var station_names ='", "");
@@ -80,6 +82,7 @@ public class StationService {
         String url = this.getTicketUrl(ticketDTO);
         String response = HttpsUtil.httpGet(url);
         if (response == null) {
+            logger.error("查询车次信息出错");
             return;
         }
         TicketReponse ticketReponse = GsonUtil.fromJson(response, TicketReponse.class);
@@ -88,14 +91,14 @@ public class StationService {
         Map<String, Object> map = data.getMap();
         //车次信息列表
         List<String> result = data.getResult();
-        if (result==null||result.isEmpty()){
+        if (result == null || result.isEmpty()) {
+            logger.warn("车次信息列表为空");
             return;
         }
-        List<TrainBO> trainList=this.getParseTrainInfo(result,map);
+        List<TrainBO> trainList = this.getParseTrainInfo(result, map);
 
-
-
-        System.out.println(response);
+        logger.info("查询成功1");
+        logger.info(response);
     }
 
     /**
@@ -105,7 +108,7 @@ public class StationService {
      * @return 解析后的车次列表
      */
     private List<TrainBO> getParseTrainInfo(List<String> trainList, Map<String, Object> stationMap) {
-        List<TrainBO> result=new ArrayList<>();
+        List<TrainBO> result = new ArrayList<>();
         for (String str : trainList) {
             String[] train = StrUtil.split(str, "|");
             TrainBO trainBO = new TrainBO();
@@ -129,20 +132,20 @@ public class StationService {
             trainBO.setToStationNo(train[17]);
             trainBO.setIsSupportCard(train[18]);
             trainBO.setControlledTrainFlag(train[19]);
-            trainBO.setGgNum("".equals(train[20])?"--":train[20]);
-            trainBO.setGrNum("".equals(train[21])?"--":train[21]);
-            trainBO.setQtNum("".equals(train[22])?"--":train[22]);
-            trainBO.setRwNum("".equals(train[23])?"--":train[23]);
-            trainBO.setRzNum("".equals(train[24])?"--":train[24]);
-            trainBO.setTzNum("".equals(train[25])?"--":train[25]);
-            trainBO.setWzNum("".equals(train[26])?"--":train[26]);
-            trainBO.setYbNum("".equals(train[27])?"--":train[27]);
-            trainBO.setYwNum("".equals(train[28])?"--":train[28]);
-            trainBO.setYzNum("".equals(train[29])?"--":train[29]);
-            trainBO.setZeNum("".equals(train[30])?"--":train[30]);
-            trainBO.setZyNum("".equals(train[31])?"--":train[31]);
-            trainBO.setSwzNum("".equals(train[32])?"--":train[32]);
-            trainBO.setSrrbNum("".equals(train[33])?"--":train[33]);
+            trainBO.setGgNum("".equals(train[20]) ? "--" : train[20]);
+            trainBO.setGrNum("".equals(train[21]) ? "--" : train[21]);
+            trainBO.setQtNum("".equals(train[22]) ? "--" : train[22]);
+            trainBO.setRwNum("".equals(train[23]) ? "--" : train[23]);
+            trainBO.setRzNum("".equals(train[24]) ? "--" : train[24]);
+            trainBO.setTzNum("".equals(train[25]) ? "--" : train[25]);
+            trainBO.setWzNum("".equals(train[26]) ? "--" : train[26]);
+            trainBO.setYbNum("".equals(train[27]) ? "--" : train[27]);
+            trainBO.setYwNum("".equals(train[28]) ? "--" : train[28]);
+            trainBO.setYzNum("".equals(train[29]) ? "--" : train[29]);
+            trainBO.setZeNum("".equals(train[30]) ? "--" : train[30]);
+            trainBO.setZyNum("".equals(train[31]) ? "--" : train[31]);
+            trainBO.setSwzNum("".equals(train[32]) ? "--" : train[32]);
+            trainBO.setSrrbNum("".equals(train[33]) ? "--" : train[33]);
             trainBO.setYpEx(train[34]);
             trainBO.setSeatTypes(train[35]);
             trainBO.setExchangeTrainFlag(train[36]);

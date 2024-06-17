@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--status 设置log4j2自身内部的信息输出，可以不设置；设置成TRACE时，可以看到log4j2内部各种详细输出；
+        日志级别排序：OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL
+    monitorInterval log4j2自动检测西欧i高配置文件和重新配置本身，设置间隔秒数
+-->
+<configuration status="INFO" monitorInterval="5">
+    <properties>
+        <!-- 格式化输出：%date表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度 %msg：日志消息，%n是换行符-->
+        <!-- %logger{36} 表示 Logger 名字最长36个字符 -->
+        <property name="LOG_PATTERN" value="%date{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"/>
+<!--        生产环境使用绝对路径，不建议用相对路径-->
+        <property name="FILE_PATH" value="./logs"/>
+        <property name="FILE_NAME" value="sinet"/>
+    </properties>
+    <appenders>
+        <console name="console" target="SYSTEM_OUT">
+<!--            输出日志格式-->
+            <patternLayout pattern="${LOG_PATTERN}"/>
+            <!--控制台只输出level及其以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <thresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </console>
+        <!-- 这个会打印出所有的INFO及以上级别的信息，每次大小超过size日志会自动存入按年-月-日格式建立的文件夹下面并进行存档-->
+        <rollingFile name="rollingLogFile" fileName="${FILE_PATH}/java-log.log"
+            filePattern="${FILE_PATH}/${FILE_NAME}-java-log-%d{yyyy-MM-dd}_%i.log">
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <thresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <patternLayout pattern="${LOG_PATTERN}" charset="UTF-8"/>
+            <policies>
+                <!--interval属性用来指定多久滚动一次，默认是1 单位取决于filePattern时间精确度-->
+                <timeBasedTriggeringPolicy interval="1"/>
+                <sizeBasedTriggeringPolicy size="1MB"/>
+            </policies>
+            <!--保存日志文件个数 超出max 会删除旧的文件-->
+            <defaultRolloverStrategy max="20">
+                <delete basePath="${FILE_PATH}" maxDepth="2">
+                    <ifLastModified age="15d"/>
+                </delete>
+            </defaultRolloverStrategy>
+        </rollingFile>
+    </appenders>
+    <!--Logger节点用来单独指定日志的形式，比如要为指定包下的class指定不同的日志级别等。-->
+    <!--然后定义loggers，只有定义了logger并引入的appender，appender才会生效-->
+    <loggers>
+        <!-- 日志打印sql语句及参数 -->
+        <logger name="chen.chentool.trainTicket.dao" level="DEBUG" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+        <!--日志级别-->
+        <root level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingLogFile"/>
+        </root>
+    </loggers>
+</configuration>
