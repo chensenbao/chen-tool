@@ -1,4 +1,4 @@
-package chen.chentool.trainTicket;
+package chen.chentool.trainTicket.service;
 
 import chen.chentool.trainTicket.dao.StationDao;
 import chen.chentool.trainTicket.entity.StationEntity;
@@ -37,14 +37,14 @@ public class StationService {
      * 获取站点信息
      */
     @Transactional
-    public void getSiteInfo(String url) {
+    public String updateSiteInfo(String url) {
         if (StrUtil.isBlank(url)) {
             url = "https://kyfw.12306.cn/otn/resources/js/framework/station_name.js";
         }
         String response = HttpUtil.get(url);
         if (response == null) {
             logger.warn("获取站点信息出错");
-            return;
+            return "获取站点信息出错";
         }
         response = StrUtil.replace(response, "var station_names ='", "");
         response = StrUtil.replace(response, "';", "");
@@ -64,7 +64,7 @@ public class StationService {
             stationEntity.setStationPinyinSimple(stationInfo.get(4));
             stationDao.insert(stationEntity);
         });
-//        System.out.println("操作成功");
+        return "获取站点信息成功";
     }
 
     /**

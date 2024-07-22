@@ -1,6 +1,7 @@
 package chen.chentool.trainTicket;
 
 import chen.chentool.trainTicket.entity.TicketDTO;
+import chen.chentool.trainTicket.service.StationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class StationTest {
 
     @Test
     public void getSiteInfo() {
-        stationService.getSiteInfo("");
+        stationService.updateSiteInfo("");
     }
     @Test
     public void ticketList(){
